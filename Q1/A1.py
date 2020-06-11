@@ -1,14 +1,14 @@
 from socket import socket, gethostname
 
 
-port = 12345
+port = 1245
 
 
-def ClientsendMessage(message, sock):
+def clientSendMessage(message, sock):
     # Send a server given message thorugh given socket
     try:
-        print("Sending message...")
-        sock.sendall(message)
+        print("trying to send message...")
+        sock.sendall(message.encode())
         print("Message sent, Closing Connection.")
         sock.close()
     except:
@@ -20,10 +20,13 @@ def connectToServer():
     sock = socket()
     try:
         sock.connect((gethostname(), port))
+        print("Server Connection successfull.")
+        return sock
     except ConnectionRefusedError:
         print("Server Unavailable")
-    print("Server Connection successfull.")
-    return sock
+        exit()
 
 
-print("Heelow world")
+if __name__ == "__main__":
+
+    clientSendMessage(string, connectToServer())
