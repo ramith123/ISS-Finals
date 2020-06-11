@@ -26,8 +26,7 @@ def receiveData(client):
         while data:
             message += data
             data = client.recv(1024).decode()
-        print("Message received, closing connection")
-        client.close()
+        print("Message received.")
         return message
     except ConnectionError:
         print("Connection error")
@@ -39,6 +38,7 @@ def nameLater():
     sock = makeServer()
     conn = listenForConnection(sock)
     print(receiveData(conn))
+    conn.close()
 
 
 if __name__ == "__main__":
