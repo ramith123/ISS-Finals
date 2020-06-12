@@ -10,7 +10,7 @@
         -   unsecured network between remote client and this router.
   3.  Server router
        - Unsecured network between main server and this router.
-
+  4.  Firewalls and dmz between over the offices
 ## Scenarios to consider
    1.   only release signed information (whatever this means.)
    1.   pre-compute digital signatures for performance reasons.
