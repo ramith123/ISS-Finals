@@ -9,7 +9,6 @@ black = "==19.10b0"
 
 [packages]
 pycryptodome = "*"
-numpy = "*"
 
 [requires]
 python_version = "3.7"

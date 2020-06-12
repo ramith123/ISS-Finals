@@ -72,4 +72,4 @@ def binaryToText(binary):
 
 
 if __name__ == "__main__":
-    convertLetterToBinary()
+    
