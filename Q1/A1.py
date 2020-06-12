@@ -73,4 +73,3 @@ def binaryToText(binary):
 
 if __name__ == "__main__":
     convertLetterToBinary()
-    print(binaryToText(readFile("LetterBinary")))
