@@ -26,7 +26,6 @@
    9.   No possibility of eavesdropping between remote and server.
    10.  Check for XSS and SQL Injections
          -   Escape Queries
-   11.  
 
 ## Things to look for
 - [ ] VPN
