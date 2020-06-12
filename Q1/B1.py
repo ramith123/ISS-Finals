@@ -1,11 +1,12 @@
 from socket import gethostname, socket
 
-port = 1245
+PORT = 1245
 
 
 def makeServer():
+    # Creates a server on port specified. returns the socket object.
     sock = socket()
-    sock.bind((gethostname(), port))
+    sock.bind((gethostname(), PORT))
     print("Server socket setup complete")
     return sock
 
@@ -18,19 +19,19 @@ def listenForConnection(sock):
     return client
 
 
-def receiveData(client):
+def receiveData(sock):
     message = ""
     try:
         print("Trying to receive msg.")
-        data = client.recv(1024).decode()
+        data = sock.recv(1024).decode()
         while data:
             message += data
-            data = client.recv(1024).decode()
+            data = sock.recv(1024).decode()
         print("Message received.")
         return message
     except ConnectionError:
         print("Connection error")
-        client.close()
+        sock.close()
         exit()
 
 
@@ -39,7 +40,3 @@ def nameLater():
     conn = listenForConnection(sock)
     print(receiveData(conn))
     conn.close()
-
-
-if __name__ == "__main__":
-    nameLater()
