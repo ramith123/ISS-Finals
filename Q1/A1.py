@@ -4,6 +4,11 @@ from textwrap import wrap
 
 PORT = 1245
 OTPNumberOfBits = 1000
+LetterFile = "Letter"
+OTPFile = "OTPGeneratedKey"
+LetterBinaryFile = "LetterBinary"
+encryptedTextFile = "protocoloneoutput"
+decryptedTextFile = "LetterBinary2"
 
 
 def connectToServer():
@@ -29,34 +34,34 @@ def sendData(message, sock):
         exit()
 
 
-def generatBinaryFile(data, fileName, convert=True):
-    if convert:
+def generateFile(data, relativeFilePathAndName, convertToBinary=False):
+    if convertToBinary:
         data = bin(data)[2:]
-    with open(f"{fileName}.dat", "w+") as f:
+    with open(f"{relativeFilePathAndName}.dat", "w+") as f:
         f.write(data)
 
 
 def generateOTPKeyFile():
     randomBits = random.getrandbits(OTPNumberOfBits)
-    generatBinaryFile(randomBits, "OTPGeneratedKey")
+    generateFile(randomBits, OTPFile, True)
 
 
-def readFile(fileName):
+def readFile(relativeFilePathAndName):
     try:
-        with open(f"{fileName}.dat", "r") as f:
+        with open(f"{relativeFilePathAndName}.dat", "r") as f:
             data = f.read()
             if data:
                 return data
             else:
-                raise Exception(f"No data in {fileName}.dat file")
+                raise Exception(f"No data in {relativeFilePathAndName}.dat file")
     except FileNotFoundError:
-        print(f"File called {fileName}.dat is not found")
+        print(f"File called {relativeFilePathAndName}.dat is not found")
 
 
-def convertLetterToBinary():
-    text = readFile("Letter")
+def generateLetterToBinaryFile():
+    text = readFile(LetterFile)
     data = textToBinary(text)
-    generatBinaryFile(data, "LetterBinary", False)
+    generateFile(data, LetterBinaryFile)
 
 
 def textToBinary(text):
@@ -71,5 +76,30 @@ def binaryToText(binary):
     return text
 
 
+def encryptAndDecryptOTP(plainOrCypherBinary, keyBinary):
+    resultBinary = ""
+    if len(plainOrCypherBinary) > len(keyBinary):
+        raise Exception("plain/cypher Text is bigger than otp key.")
+    for i, binary in enumerate(plainOrCypherBinary):
+        resultBinary += str(int(binary) ^ int(keyBinary[i]))
+    return resultBinary
+
+
+def encryptLetter():
+    generateLetterToBinaryFile()
+    encryptedBinary = encryptAndDecryptOTP(
+        readFile(LetterBinaryFile), readFile(OTPFile)
+    )
+    generateFile(encryptedBinary, encryptedTextFile)
+
+
+def decryptLetter():
+    encryptedBinary = readFile(encryptedTextFile)
+    decryptedBinary = encryptAndDecryptOTP(encryptedBinary, readFile(OTPFile))
+    generateFile(binaryToText(decryptedBinary), decryptedTextFile)
+
+
 if __name__ == "__main__":
-    pass
+    generateOTPKeyFile()
+    encryptLetter()
+    decryptLetter()
