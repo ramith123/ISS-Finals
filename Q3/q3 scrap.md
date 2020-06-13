@@ -33,7 +33,7 @@
    7.   No possibility of a Dictionary attack.
         - salt, IDS
    8.   No possibility of eavesdropping between remote and server.
-        -  SSL through VPN
+        -  IPSEC through VPN (User authentication is integrated compare to SSL)
    9.   Check for XSS and SQL Injections
          -   Escape Queries
 
