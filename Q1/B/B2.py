@@ -108,6 +108,7 @@ def diffHelExchangeServer(connection):
 
 
 def aesDecryption(key, message):
+    # Decrypt message using The symmetric key and returns the string with padding removed
     cipher = AES.new(key, AES.MODE_ECB)
     result = cipher.decrypt(unhexlify(message))
 
@@ -115,19 +116,23 @@ def aesDecryption(key, message):
 
 
 def generateOTPFile(key, encryptedOTP):
+    # Decrypt and save OTP Key
     message = aesDecryption(key, encryptedOTP)
     print("Message decryption complete.")
     generateFile(message, OTPFile)
 
 
 if __name__ == "__main__":
+    # create server and establish connection
     sock = makeServer()
     connection = listenForConnection(sock)
 
+    # Generate and save Symmetric key
     key = diffHelExchangeServer(connection)
     print("Key exchange successful")
     generateFile(key.hex(), aesFile)
 
+    # Decrypt and save OTP key
     encryptedOTP = receiveDataFromConnection(connection)
     print("Encryption message received.")
     generateOTPFile(key, encryptedOTP)

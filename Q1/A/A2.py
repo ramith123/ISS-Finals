@@ -122,6 +122,7 @@ def diffHelExchangeClient(conn):
 def aesEncryption(key, message):
     # Encrypt a message using The symmetric key
     cipher = AES.new(key, AES.MODE_ECB)
+    # message must be padded to fit the AES block size. So a pad function is used
     result = cipher.encrypt(pad(message.encode(), AES.block_size))
     return result
 
