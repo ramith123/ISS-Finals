@@ -1,3 +1,8 @@
+"""
+This program sets up a symmetric key between Alice and Bob;
+and decrypts the OTP key sent by alex using AES algorithm + symmetric key.
+"""
+
 from hashlib import sha256
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import unpad
@@ -5,12 +10,12 @@ from socket import socket, gethostname
 from binascii import unhexlify
 
 
-p = 7
-g = 5
-bSecretNumber = 593
-PORT = 7892
-OTPFile = "OTPGeneratedKey"
-aesFile = "AESKeyFile"
+p = 7  # prime number used from instructions
+g = 5  # Generator number used from instructions
+bSecretNumber = 593  # Bob's secret key to generate symmetric key
+PORT = 7892  # Port used in program A1 and B1
+OTPFile = "OTPGeneratedKey"  # Location to store the OTP key
+aesFile = "AESKeyFile"  # Location of the aes symmeteric key
 
 
 def makeServer():
@@ -22,6 +27,7 @@ def makeServer():
 
 
 def listenForConnection(sock):
+    # Listen until a client is available, and establish a TCP connection and return socket object
     print("Listening to connection")
     sock.listen(1)
     client, clientAddress = sock.accept()
@@ -30,13 +36,14 @@ def listenForConnection(sock):
 
 
 def receiveDataFromConnection(connection):
+    # This function receives data from a given socket.
     message = ""
     try:
         print("Trying to receive msg.")
         data = connection.recv(1024).decode()
-        while data:
+        while data:  # In order to get data that is larger than 1024 bits
             message += data
-            if len(data) < 1024:
+            if len(data) < 1024:  # break the loop if the data is less than 1024
                 break
             data = connection.recv(1024).decode()
         print("Message received.")
@@ -48,7 +55,7 @@ def receiveDataFromConnection(connection):
 
 
 def sendData(message, sock):
-    # Send a server given message thorugh given socket
+    # Send server, specified by the socket object, a message. The message will be encoded before sending it.
     try:
         print("trying to send message...")
         sock.sendall(message.encode())
@@ -60,6 +67,9 @@ def sendData(message, sock):
 
 
 def generateFile(data, relativeFilePathAndName="default", convertToBinary=False):
+    # create a ".dat" file containing <data> based on a location specified.
+
+    # if true, it will convert the data (integer) into binary rep, and remove the first 2 characters ("0b" part)
     if convertToBinary:
         data = bin(data)[2:]
     with open(f"{relativeFilePathAndName}.dat", "w+") as f:
@@ -67,26 +77,31 @@ def generateFile(data, relativeFilePathAndName="default", convertToBinary=False)
 
 
 def generatePublicKey():
+    # Creates public value that will be sent to Bob openly.
     return (g ** bSecretNumber) % p
 
 
 def generateSharedKey(bSharableKey):
+    # Generate AES symmeteric Key using Bob's public value
     key = (bSharableKey ** bSecretNumber) % p
     hashkey = sha256(str(key).encode())
     return hashkey.digest()
 
 
 def sendPublicKey(connection):
+    # Send public key to a connection socket object
     key = generatePublicKey()
     sendData(str(key), connection)
 
 
 def getPublicKey(connection):
+    # Get Key from Connection Socket object return it.
     key = receiveDataFromConnection(connection)
     return int(key)
 
 
 def diffHelExchangeServer(connection):
+    # Use above three function to complete the diffie hellman key exchange
     sendPublicKey(connection)
     bKey = getPublicKey(connection)
     return generateSharedKey(bKey)

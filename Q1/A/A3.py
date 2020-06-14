@@ -1,20 +1,25 @@
+"""
+This program generates an HMAC for the Binary data (Letter) and send it to
+program B3.
+"""
 import hmac
 from hashlib import sha256
 from binascii import unhexlify
 from socket import socket, gethostname
 
-LetterBinary = "LetterBinary"
-aesFile = "AESKeyFile"
-PORT = 34456
+LetterBinary = "LetterBinary"  # Location of the stored Binary (ascii) converted Letter
+aesFile = "AESKeyFile"  # Location of the aes symmeteric key
+PORT = 34456  # Port used in program A3 and B3
 
 
 def readFile(relativeFilePathAndName):
+    #  Reads a given ".dat" file and returns its data.
     try:
         with open(f"{relativeFilePathAndName}.dat", "r") as f:
             data = f.read()
             if data:
                 return data
-            else:
+            else:  # If there is no data in the file
                 raise Exception(f"No data in {relativeFilePathAndName}.dat file")
                 exit()
     except FileNotFoundError:
@@ -43,6 +48,7 @@ def makeServer():
 
 
 def listenForConnection(sock):
+    # Listen until a client is available, and establish a TCP connection and return socket object
     print("Listening to connection")
     sock.listen(1)
     client, clientAddress = sock.accept()
@@ -51,6 +57,7 @@ def listenForConnection(sock):
 
 
 def sendHmac(hmac):
+    # This function converts hmac object to a hexadecimal digest and send it to bob
     digest = hmac.hexdigest()
     sock = makeServer()
     conn = listenForConnection(sock)
@@ -58,7 +65,8 @@ def sendHmac(hmac):
 
 
 if __name__ == "__main__":
-    key = readFile(aesFile)
+    key = readFile(aesFile)  # Get symmetric key
     message = readFile(LetterBinary)
+    # Generate hmac using SYmmetric key, message and sha256 algorithm
     hmac = hmac.new(unhexlify(key), message.encode(), sha256)
     sendHmac(hmac)
