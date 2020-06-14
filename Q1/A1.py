@@ -27,7 +27,7 @@ def sendData(message, sock):
         print("trying to send message...")
         sock.sendall(message.encode())
         print("Message sent, Closing Connection.")
-        sock.close()
+
     except:
         print("Connection Error. Aborting")
         exit()
@@ -95,4 +95,6 @@ def encryptLetter():
 if __name__ == "__main__":
     generateOTPKeyFile()
     encryptLetter()
-    sendData(readFile(encryptedTextFile), connectToServer())
+    sock = connectToServer()
+    sendData(readFile(encryptedTextFile), sock)
+    sock.close()

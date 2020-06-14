@@ -52,12 +52,26 @@ def receiveDataFromConnection(connection):
         data = connection.recv(1024).decode()
         while data:
             message += data
+            if len(data) <= 1024:
+                break
             data = connection.recv(1024).decode()
         print("Message received.")
         return message
     except ConnectionError:
         print("Connection error")
         connection.close()
+        exit()
+
+
+def sendData(message, sock):
+    # Send a server given message thorugh given socket
+    try:
+        print("trying to send message...")
+        sock.sendall(message.encode())
+        print("Message sent, Closing Connection.")
+
+    except:
+        print("Connection Error. Aborting")
         exit()
 
 
