@@ -8,6 +8,7 @@ g = 5
 aSecretNumber = 475
 PORT = 7892
 OTPFile = "OTPGeneratedKey"
+aesFile = "AESKeyFile"
 
 
 def connectToServer():
@@ -120,7 +121,12 @@ def encryptOTPKey(key):
 if __name__ == "__main__":
     conn = connectToServer()
     key = diffHelExchangeClient(conn)
+    print("Key exchange successful")
+
+    generateFile(key.hex(), aesFile)
     EncryptedMsg = encryptOTPKey(key)
-    print(type(EncryptedMsg))
+    print("Encryption Complete.")
+
     sendData(EncryptedMsg, conn)
+    print("Encrypted message sent. Client closing.")
     conn.close()

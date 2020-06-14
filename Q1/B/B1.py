@@ -1,11 +1,12 @@
 from socket import gethostname, socket
 from textwrap import wrap
+from os import path
 
 PORT = 1245
 
-encryptedTextFile = "protocoloneoutput2"
-decryptedTextFile = "LetterBinary2"
-OTPFile = "OTPGeneratedKey2"
+encryptedTextFile = "protocoloneoutput"
+decryptedTextFile = "LetterBinary"
+OTPFile = "OTPGeneratedKey"
 
 
 def readFile(relativeFilePathAndName):
@@ -106,9 +107,17 @@ def binaryToText(binary):
 if __name__ == "__main__":
     try:
         generateFile(getDataFromClient(), encryptedTextFile)
+        if not path.exists(OTPFile + ".dat"):
+            choice = input(
+                "OTP key file does not exist. Try running B2 then A2 and come back here. <ENTER> to continue.\n OR press <y> to use the local file (Only works if both programs on the same machine) :"
+            )
+            if choice == "y":
+                OTPFile = "OTPGeneratedKey2"
+
         decryptLetter()
+
         print("\n")
         print(binaryToText(readFile(decryptedTextFile)))
         print("\n")
     except:
-        print("An error has occured. Closing Program")
+        print("An error has occurred. Closing Program")

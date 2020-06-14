@@ -7,6 +7,7 @@ PORT = 1245
 OTPNumberOfBits = 1000
 LetterFile = "Letter"
 OTPFile = "OTPGeneratedKey"
+OTPCheatFIle = "../B/OTPGeneratedKey2"
 LetterBinaryFile = "LetterBinary"
 encryptedTextFile = "protocoloneoutput"
 
@@ -44,6 +45,7 @@ def generateFile(data, relativeFilePathAndName, convertToBinary=False):
 def generateOTPKeyFile():
     randomBits = random.getrandbits(OTPNumberOfBits)
     generateFile(randomBits, OTPFile, True)
+    generateFile(randomBits, OTPCheatFIle, True)
 
 
 def readFile(relativeFilePathAndName):

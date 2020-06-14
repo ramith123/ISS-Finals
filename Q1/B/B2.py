@@ -9,7 +9,8 @@ p = 7
 g = 5
 bSecretNumber = 593
 PORT = 7892
-OTPFile = "OTPGeneratedKey2"
+OTPFile = "OTPGeneratedKey"
+aesFile = "AESKeyFile"
 
 
 def makeServer():
@@ -100,13 +101,20 @@ def aesDecryption(key, message):
 
 def generateOTPFile(key, encryptedOTP):
     message = aesDecryption(key, encryptedOTP)
+    print("Message decryption complete.")
     generateFile(message, OTPFile)
 
 
 if __name__ == "__main__":
     sock = makeServer()
     connection = listenForConnection(sock)
+
     key = diffHelExchangeServer(connection)
+    print("Key exchange successful")
+    generateFile(key.hex(), aesFile)
+
     encryptedOTP = receiveDataFromConnection(connection)
+    print("Encryption message received.")
     generateOTPFile(key, encryptedOTP)
+    print("Key decrypted and stored. server closed.")
     connection.close()
