@@ -8,7 +8,6 @@ LetterFile = "Letter"
 OTPFile = "OTPGeneratedKey"
 LetterBinaryFile = "LetterBinary"
 encryptedTextFile = "protocoloneoutput"
-decryptedTextFile = "LetterBinary2"
 
 
 def connectToServer():
@@ -18,7 +17,7 @@ def connectToServer():
         print("Server Connection successfull.")
         return sock
     except ConnectionRefusedError:
-        print(f"Server Unavailable. make sure the port is {PORT}")
+        print(f"Server Unavailable. Make sure the server is running on port {PORT} ")
         exit()
 
 
@@ -93,13 +92,7 @@ def encryptLetter():
     generateFile(encryptedBinary, encryptedTextFile)
 
 
-def decryptLetter():
-    encryptedBinary = readFile(encryptedTextFile)
-    decryptedBinary = encryptAndDecryptOTP(encryptedBinary, readFile(OTPFile))
-    generateFile(binaryToText(decryptedBinary), decryptedTextFile)
-
-
 if __name__ == "__main__":
     generateOTPKeyFile()
     encryptLetter()
-    decryptLetter()
+    sendData(readFile(encryptedTextFile), connectToServer())
