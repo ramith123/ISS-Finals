@@ -1,12 +1,15 @@
 from hashlib import sha256
-from Crypto.Cipher import DES
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import unpad
 from socket import socket, gethostname
-import time
+from binascii import unhexlify
+
 
 p = 7
 g = 5
 bSecretNumber = 593
 PORT = 7892
+OTPFile = "OTPGeneratedKey2"
 
 
 def makeServer():
@@ -32,7 +35,7 @@ def receiveDataFromConnection(connection):
         data = connection.recv(1024).decode()
         while data:
             message += data
-            if len(data) <= 1024:
+            if len(data) < 1024:
                 break
             data = connection.recv(1024).decode()
         print("Message received.")
@@ -69,7 +72,7 @@ def generatePublicKey():
 def generateSharedKey(bSharableKey):
     key = (bSharableKey ** bSecretNumber) % p
     hashkey = sha256(str(key).encode())
-    return hashkey.hexdigest()
+    return hashkey.digest()
 
 
 def sendPublicKey(connection):
@@ -82,14 +85,28 @@ def getPublicKey(connection):
     return int(key)
 
 
-def diffHelExchangeServer():
-    sock = makeServer()
-    connection = listenForConnection(sock)
+def diffHelExchangeServer(connection):
     sendPublicKey(connection)
-    akey = getPublicKey(connection)
-    connection.close()
-    return akey
+    bKey = getPublicKey(connection)
+    return generateSharedKey(bKey)
+
+
+def aesDecryption(key, message):
+    cipher = AES.new(key, AES.MODE_ECB)
+    result = cipher.decrypt(unhexlify(message))
+
+    return unpad(result, AES.block_size).decode()
+
+
+def generateOTPFile(key, encryptedOTP):
+    message = aesDecryption(key, encryptedOTP)
+    generateFile(message, OTPFile)
 
 
 if __name__ == "__main__":
-    print(diffHelExchangeServer())
+    sock = makeServer()
+    connection = listenForConnection(sock)
+    key = diffHelExchangeServer(connection)
+    encryptedOTP = receiveDataFromConnection(connection)
+    generateOTPFile(key, encryptedOTP)
+    connection.close()

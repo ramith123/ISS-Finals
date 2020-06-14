@@ -1,11 +1,13 @@
 from hashlib import sha256
-from Crypto.Cipher import DES
+from Crypto.Cipher import AES
 from socket import socket, gethostname
+from Crypto.Util.Padding import pad
 
 p = 7
 g = 5
 aSecretNumber = 475
 PORT = 7892
+OTPFile = "OTPGeneratedKey"
 
 
 def connectToServer():
@@ -31,6 +33,18 @@ def sendData(message, sock):
         exit()
 
 
+def readFile(relativeFilePathAndName):
+    try:
+        with open(f"{relativeFilePathAndName}.dat", "r") as f:
+            data = f.read()
+            if data:
+                return data
+            else:
+                raise Exception(f"No data in {relativeFilePathAndName}.dat file")
+    except FileNotFoundError:
+        print(f"File called {relativeFilePathAndName}.dat is not found")
+
+
 def receiveDataFromConnection(connection):
     message = ""
     try:
@@ -38,7 +52,7 @@ def receiveDataFromConnection(connection):
         data = connection.recv(1024).decode()
         while data:
             message += data
-            if len(data) <= 1024:
+            if len(data) < 1024:
                 break
             data = connection.recv(1024).decode()
         print("Message received.")
@@ -63,7 +77,7 @@ def generatePublicKey():
 def generateSharedKey(bSharableKey):
     key = (bSharableKey ** aSecretNumber) % p
     hashkey = sha256(str(key).encode())
-    return hashkey.hexdigest()
+    return hashkey.digest()
 
 
 def sendPublicKey(connection):
@@ -76,14 +90,37 @@ def getPublicKey(connection):
     return int(key)
 
 
-def diffHelExchangeClient():
-    conn = connectToServer()
-    bkey = getPublicKey(conn)
+def diffHelExchangeClient(conn):
+
+    bKey = getPublicKey(conn)
     sendPublicKey(conn)
 
-    conn.close()
-    return bkey
+    return generateSharedKey(bKey)
+
+
+def aesEncryption(key, message):
+
+    cipher = AES.new(key, AES.MODE_ECB)
+    result = cipher.encrypt(pad(message.encode(), AES.block_size))
+    return result
+
+
+def aesDecryption(key, message):
+    cipher = AES.new(key, AES.MODE_ECB)
+    result = cipher.decrypt(message)
+    return result
+
+
+def encryptOTPKey(key):
+    otpKey = readFile(OTPFile)
+    encryptedMsg = aesEncryption(key, otpKey)
+    return encryptedMsg.hex()
 
 
 if __name__ == "__main__":
-    print(diffHelExchangeClient())
+    conn = connectToServer()
+    key = diffHelExchangeClient(conn)
+    EncryptedMsg = encryptOTPKey(key)
+    print(type(EncryptedMsg))
+    sendData(EncryptedMsg, conn)
+    conn.close()

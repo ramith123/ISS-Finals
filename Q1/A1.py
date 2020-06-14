@@ -1,6 +1,7 @@
 from socket import socket, gethostname
 import random
 from textwrap import wrap
+from os import path
 
 PORT = 1245
 OTPNumberOfBits = 1000
@@ -93,7 +94,8 @@ def encryptLetter():
 
 
 if __name__ == "__main__":
-    generateOTPKeyFile()
+    if not path.exists(OTPFile + ".dat"):
+        generateOTPKeyFile()
     encryptLetter()
     sock = connectToServer()
     sendData(readFile(encryptedTextFile), sock)

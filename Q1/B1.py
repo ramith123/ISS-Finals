@@ -5,7 +5,7 @@ PORT = 1245
 
 encryptedTextFile = "protocoloneoutput2"
 decryptedTextFile = "LetterBinary2"
-OTPFile = "OTPGeneratedKey"
+OTPFile = "OTPGeneratedKey2"
 
 
 def readFile(relativeFilePathAndName):
@@ -52,7 +52,7 @@ def receiveDataFromConnection(connection):
         data = connection.recv(1024).decode()
         while data:
             message += data
-            if len(data) <= 1024:
+            if len(data) < 1024:
                 break
             data = connection.recv(1024).decode()
         print("Message received.")
